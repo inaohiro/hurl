@@ -26,9 +26,9 @@ use std::process::ExitCode;
 use std::time::Instant;
 use std::{env, io, thread};
 
-use hurl::report::{curl, html, json, junit, tap};
+use hurl::report::{curl, html, json, junit, tap, vars};
 use hurl::runner;
-use hurl::runner::HurlResult;
+use hurl::runner::{HurlResult, VariableSet};
 use hurl::util::redacted::Redact;
 use hurl_core::input::Input;
 use hurl_core::text;
@@ -166,6 +166,7 @@ fn has_report(opts: &CliOptions) -> bool {
         || opts.html_dir.is_some()
         || opts.json_report_dir.is_some()
         || opts.cookie_output_file.is_some()
+        || opts.vars_file.is_some()
 }
 
 /// Writes `runs` results on file, in HTML, TAP, JUnit or Cookie file format.
@@ -207,6 +208,10 @@ fn export_results(
     if let Some(file) = &opts.cookie_output_file {
         logger.debug(&format!("Writing cookies to {}", file.display()));
         create_cookies_file(runs, file, &secrets)?;
+    }
+    if let Some(file) = &opts.vars_file {
+        logger.debug(&format!("Writing vars report to {}", file.display()));
+        create_vars_file(runs, file)?;
     }
     Ok(())
 }
@@ -343,5 +348,15 @@ fn create_cookies_file(
             filename.display()
         )));
     }
+    Ok(())
+}
+
+/// Writes variables from all runs to `filename` in `.env` format.
+fn create_vars_file(runs: &[HurlRun], filename: &Path) -> Result<(), CliError> {
+    let pairs: Vec<(String, &VariableSet)> = runs
+        .iter()
+        .map(|r| (r.filename.to_string(), &r.hurl_result.variables))
+        .collect();
+    vars::write_report(filename, &pairs)?;
     Ok(())
 }

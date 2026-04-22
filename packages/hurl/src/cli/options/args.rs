@@ -126,6 +126,7 @@ pub fn parse_cli_args(
         .arg(commands::report_json())
         .arg(commands::report_junit())
         .arg(commands::report_tap())
+        .arg(commands::report_vars())
         // Other options
         .arg(commands::cookies_input_file())
         .arg(commands::cookies_output_file())
@@ -230,6 +231,7 @@ fn parse_arg_matches(
     let secrets = secret(arg_matches, default_options.secrets)?;
     let ssl_no_revoke = ssl_no_revoke(arg_matches, default_options.ssl_no_revoke);
     let tap_file = tap_file(arg_matches, default_options.tap_file);
+    let vars_file = vars_file(arg_matches, default_options.vars_file);
     let test = test(arg_matches, default_options.test);
     let timeout = timeout(arg_matches, default_options.timeout)?;
     let to_entry = to_entry(arg_matches, default_options.to_entry);
@@ -295,6 +297,7 @@ fn parse_arg_matches(
         secrets,
         ssl_no_revoke,
         tap_file,
+        vars_file,
         test,
         timeout,
         to_entry,
@@ -888,6 +891,12 @@ fn ssl_no_revoke(arg_matches: &ArgMatches, default_value: bool) -> bool {
 
 fn tap_file(arg_matches: &ArgMatches, default_value: Option<PathBuf>) -> Option<PathBuf> {
     get::<String>(arg_matches, "report_tap")
+        .map(PathBuf::from)
+        .or(default_value)
+}
+
+fn vars_file(arg_matches: &ArgMatches, default_value: Option<PathBuf>) -> Option<PathBuf> {
+    get::<String>(arg_matches, "report_vars")
         .map(PathBuf::from)
         .or(default_value)
 }

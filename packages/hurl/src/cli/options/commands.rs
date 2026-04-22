@@ -557,6 +557,15 @@ pub fn report_tap() -> clap::Arg {
         .num_args(1)
 }
 
+pub fn report_vars() -> clap::Arg {
+    clap::Arg::new("report_vars")
+        .long("report-vars")
+        .value_name("FILE")
+        .help("Write variables (input and captured) to FILE in .env format")
+        .help_heading("Report options")
+        .num_args(1)
+}
+
 pub fn resolve() -> clap::Arg {
     clap::Arg::new("resolve")
         .long("resolve")
